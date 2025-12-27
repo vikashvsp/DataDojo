@@ -1,0 +1,21 @@
+{
+    "actorOutputSchemaVersion": 1,
+    "title": "SQL Explainer Output",
+    "properties": {
+        "details": {
+            "title": "Run details (JSON)",
+            "type": "string",
+            "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
+        },
+        "visualization": {
+            "title": "Visualization image",
+            "type": "string",
+            "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/visualization.png"
+        },
+        "report": {
+            "title": "Analysis Report",
+            "type": "string",
+            "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/report.html"
+        }
+    }
+}

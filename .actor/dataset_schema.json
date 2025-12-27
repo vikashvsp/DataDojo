@@ -1,0 +1,64 @@
+{
+    "actorSpecification": 1,
+    "fields": {
+        "original_sql": {
+            "type": "string",
+            "description": "The SQL query executed."
+        },
+        "explanation": {
+            "type": "string",
+            "description": "Detailed explanation of the SQL query."
+        },
+        "data_insights": {
+            "type": "string",
+            "description": "AI-generated insights from the data."
+        },
+        "visualization_url": {
+            "type": "string",
+            "description": "Key-Value Store key for the visualization image."
+        },
+        "report_url": {
+            "type": "string",
+            "description": "Key-Value Store key for the HTML report."
+        }
+    },
+    "views": {
+        "overview": {
+            "title": "Overview",
+            "transformation": {
+                "fields": [
+                    "original_sql",
+                    "explanation",
+                    "data_insights",
+                    "visualization_url",
+                    "report_url"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "original_sql": {
+                        "label": "SQL Query",
+                        "format": "text"
+                    },
+                    "explanation": {
+                        "label": "Explanation",
+                        "format": "text"
+                    },
+                    "data_insights": {
+                        "label": "Insights",
+                        "format": "text"
+                    },
+                    "visualization_url": {
+                        "label": "Viz Image",
+                        "format": "text"
+                    },
+                    "report_url": {
+                        "label": "HTML Report",
+                        "format": "text"
+                    }
+                }
+            }
+        }
+    }
+}

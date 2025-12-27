@@ -1,0 +1,8 @@
+apify
+pandas
+faker
+sqlglot
+matplotlib
+seaborn
+google-generativeai
+markdown

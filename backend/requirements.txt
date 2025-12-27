@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pandas
+faker
+sqlglot
+google-generativeai
+markdown
+matplotlib
+apify-client
+python-dotenv

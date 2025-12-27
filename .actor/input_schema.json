@@ -1,0 +1,24 @@
+{
+    "title": "SQL Explainer Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "sql": {
+            "type": "string",
+            "title": "SQL Query or Question",
+            "description": "The SQL query to analyze, or a natural language question to convert to SQL.",
+            "editor": "textarea",
+            "prefill": "SELECT department, AVG(salary) as avg_salary FROM employees GROUP BY department"
+        },
+        "geminiApiKey": {
+            "type": "string",
+            "title": "Gemini API Key",
+            "description": "Optional: Provide a Google Gemini API Key for detailed AI explanations and smart visualization.",
+            "editor": "textfield",
+            "isSecret": true
+        }
+    },
+    "required": [
+        "sql"
+    ]
+}
