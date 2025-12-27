@@ -33,7 +33,7 @@ class AIClient:
                     messages=[
                         {"role": "user", "content": prompt}
                     ],
-                    headers={
+                    extra_headers={
                         "HTTP-Referer": "https://apify.com/", # Optional, for OpenRouter rankings
                         "X-Title": "DataDojo" 
                     }
