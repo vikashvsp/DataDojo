@@ -3,7 +3,7 @@ pandas
 faker
 sqlglot
 matplotlib
-seaborpandas
+seaborn
 google-generativeai
 openai
 markdown
