@@ -3,7 +3,10 @@ uvicorn
 pandas
 faker
 sqlglot
+openai
 google-generativeai
+httpcore
+httpx
 markdown
 matplotlib
 apify-client

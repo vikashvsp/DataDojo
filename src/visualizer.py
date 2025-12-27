@@ -1,19 +1,20 @@
+import matplotlib
+matplotlib.use('Agg') # Use non-interactive backend for server
 import matplotlib.pyplot as plt
 import pandas as pd
 import io
 import base64
-import google.generativeai as genai
 import json
+from .ai_client import AIClient
 
 class Visualizer:
     def __init__(self, api_key=None):
         self.api_key = api_key
 
     def _get_gemini_config(self, df, sql_query):
-        """Asks Gemini for the best visualization config."""
+        """Asks AI for the best visualization config."""
         try:
-            genai.configure(api_key=self.api_key)
-            model = genai.GenerativeModel('gemini-2.0-flash')
+            client = AIClient(self.api_key)
             
             # Prepare data sample (first 5 rows)
             data_sample = df.head().to_string()
@@ -33,9 +34,9 @@ class Visualizer:
                 "}"
             )
             
-            response = model.generate_content(prompt)
+            text = client.generate_content(prompt).strip()
+            
             # Clean response
-            text = response.text.strip()
             if text.startswith("```json"):
                 text = text[7:-3]
             elif text.startswith("```"):
@@ -43,8 +44,9 @@ class Visualizer:
                 
             return json.loads(text)
         except Exception as e:
-            print(f"Gemini Viz Error: {e}")
+            print(f"AI Viz Error: {e}")
             return None
+
     def create_chart(self, df, sql_query=""):
         """
         Analyzes the DataFrame and creates a chart if applicable.
@@ -56,7 +58,7 @@ class Visualizer:
         plt.figure(figsize=(10, 6))
         chart_created = False
 
-        # Try Gemini first
+        # Try AI first
         if self.api_key:
             config = self._get_gemini_config(df, sql_query)
             if config:
@@ -82,7 +84,7 @@ class Visualizer:
                     
                     chart_created = True
                 except Exception as e:
-                    print(f"Gemini Charting Error: {e}")
+                    print(f"AI Charting Error: {e}")
                     plt.clf() # Clear if failed
 
         # Fallback heuristic

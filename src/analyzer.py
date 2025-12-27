@@ -1,7 +1,6 @@
 import sqlglot
 from sqlglot import exp
-import google.generativeai as genai
-import os
+from .ai_client import AIClient
 
 class SQLAnalyzer:
     def __init__(self, sql_query, api_key=None):
@@ -17,12 +16,14 @@ class SQLAnalyzer:
 
     def get_tables(self):
         """Extracts table names from the query."""
+        if not self.parsed: return []
         return [table.name for table in self.parsed.find_all(exp.Table)]
 
     def get_columns(self):
         """
         Extracts column names, resolving aliases to table names.
         """
+        if not self.parsed: return {}
         columns = {}
         alias_map = {}
 
@@ -59,8 +60,7 @@ class SQLAnalyzer:
         """Generates a natural language explanation."""
         if self.api_key:
             try:
-                genai.configure(api_key=self.api_key)
-                model = genai.GenerativeModel('gemini-2.0-flash')
+                client = AIClient(self.api_key)
                 prompt = (
                     f"Act as an expert SQL tutor. Explain this SQL query in detail to a beginner: '{self.sql_query}'.\n"
                     "Structure your explanation as follows:\n"
@@ -71,25 +71,24 @@ class SQLAnalyzer:
                     "5. **Metadata Reasoning**: Explain WHY the query is structured this way. For example: 'Detected GROUP BY because aggregation (COUNT) is used', 'Primary table inferred: employees', 'Relevant columns identified: department'.\n"
                     "Keep it clear, educational, and engaging."
                 )
-                response = model.generate_content(prompt)
-                return response.text
+                return client.generate_content(prompt)
             except Exception as e:
-                print(f"Gemini Error: {e}")
+                print(f"AI Error: {e}")
                 # Fallback to basic explanation with error note
-                return f"**Gemini API Error**: {str(e)}<br><br>**Basic Explanation**: The query performs an operation on the following tables: {', '.join(self.get_tables())}."
+                return f"**AI API Error**: {str(e)}<br><br>**Basic Explanation**: The query performs an operation on the following tables: {', '.join(self.get_tables())}."
 
         # sqlglot has a transpiler, but not a "explainer". 
         # We'll construct a simple one.
         explanation = []
         explanation.append(f"The query performs an operation on the following tables: {', '.join(self.get_tables())}.")
         
-        if self.parsed.find(exp.Group):
+        if self.parsed and self.parsed.find(exp.Group):
             explanation.append("It groups the results.")
         
-        if self.parsed.find(exp.Order):
+        if self.parsed and self.parsed.find(exp.Order):
             explanation.append("It orders the output.")
             
-        if self.parsed.find(exp.Join):
+        if self.parsed and self.parsed.find(exp.Join):
             explanation.append("It joins multiple tables together.")
 
         return " ".join(explanation)
@@ -100,8 +99,7 @@ class SQLAnalyzer:
             return None
             
         try:
-            genai.configure(api_key=self.api_key)
-            model = genai.GenerativeModel('gemini-2.0-flash')
+            client = AIClient(self.api_key)
             prompt = (
                 f"You are a SQL expert. Convert this input to a standard SQL query: '{text}'.\n"
                 "Rules:\n"
@@ -112,8 +110,7 @@ class SQLAnalyzer:
                 "   - For 'JOIN', generate a query joining employees and sales.\n"
                 "3. Return ONLY the SQL string. No markdown, no explanations."
             )
-            response = model.generate_content(prompt)
-            sql = response.text.strip()
+            sql = client.generate_content(prompt).strip()
             
             # Clean up potential markdown if Gemini ignores instructions
             if sql.startswith("```sql"):
@@ -123,7 +120,7 @@ class SQLAnalyzer:
             
             return sql.strip()
         except Exception as e:
-            print(f"Gemini NL2SQL Error: {e}")
+            print(f"AI NL2SQL Error: {e}")
             return None
 
     def generate_data_insights(self, df):
@@ -134,8 +131,7 @@ class SQLAnalyzer:
             return "No data available to generate insights."
             
         try:
-            genai.configure(api_key=self.api_key)
-            model = genai.GenerativeModel('gemini-2.0-flash')
+            client = AIClient(self.api_key)
             
             # Prepare data sample (first 20 rows to avoid token limits)
             data_sample = df.head(20).to_string()
@@ -149,10 +145,9 @@ class SQLAnalyzer:
                 "- Potential anomalies or business implications (e.g., resource gaps)\n"
                 "Make it sound like a professional data analyst."
             )
-            response = model.generate_content(prompt)
-            return response.text
+            return client.generate_content(prompt)
         except Exception as e:
-            print(f"Gemini Insights Error: {e}")
+            print(f"AI Insights Error: {e}")
             return None
 
     def fix_sql_error(self, broken_sql, error_message):
@@ -161,8 +156,7 @@ class SQLAnalyzer:
             return None
             
         try:
-            genai.configure(api_key=self.api_key)
-            model = genai.GenerativeModel('gemini-2.0-flash')
+            client = AIClient(self.api_key)
             
             prompt = (
                 f"The following SQL query failed with an error:\n"
@@ -170,8 +164,7 @@ class SQLAnalyzer:
                 f"Error: '{error_message}'\n"
                 "Fix the SQL query to resolve the error. Return ONLY the corrected SQL string (no markdown, no explanations)."
             )
-            response = model.generate_content(prompt)
-            sql = response.text.strip()
+            sql = client.generate_content(prompt).strip()
             
             # Clean up potential markdown
             if sql.startswith("```sql"):
@@ -181,5 +174,5 @@ class SQLAnalyzer:
             
             return sql.strip()
         except Exception as e:
-            print(f"Gemini Auto-Fix Error: {e}")
+            print(f"AI Auto-Fix Error: {e}")
             return None
