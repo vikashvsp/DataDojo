@@ -147,8 +147,9 @@ class SQLAnalyzer:
             )
             return client.generate_content(prompt)
         except Exception as e:
-            print(f"AI Insights Error: {e}")
-            return None
+            error_msg = f"AI Insights Error: {str(e)}"
+            print(error_msg)
+            return error_msg
 
     def fix_sql_error(self, broken_sql, error_message):
         """Fixes a broken SQL query using Gemini."""
